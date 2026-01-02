@@ -234,9 +234,11 @@ app.post('/check-game', auth, async (req, res) => {
                 args: getBrowserArgs(p[0], p[1])
                 });
 
+
+
                 const page = await browser.newPage();
                 await page.authenticate({ username: p[2], password: p[3] });
-                page.setDefaultNavigationTimeout(10000);
+                page.setDefaultNavigationTimeout(60000);
 
                 // --- BẮT ĐẦU VÀO GAME ---
                 await page.goto(url, { waitUntil: 'domcontentloaded' });
