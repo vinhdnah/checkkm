@@ -174,9 +174,10 @@ app.post('/check-proxy', async (req, res) => {
         // Sử dụng cấu hình chuẩn
         browser = await puppeteer.launch({ 
         headless: "new",
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
+        executablePath: puppeteer.executablePath(),
         args: getBrowserArgs(p[0], p[1])
         });
+
 
 
         const page = await browser.newPage();
@@ -192,10 +193,9 @@ app.post('/check-proxy', async (req, res) => {
         throw new Error("Proxy có phản hồi nhưng không phải JSON: " + content.slice(0, 120));
         }
 
-        res.json({ success: true, data: parsed });
-
         await browser.close();
-        res.json({ success: true, data: JSON.parse(content) });
+        return res.json({ success: true, data: parsed });
+
     } catch (e) {
         if(browser) await browser.close();
         res.json({ success: false, message: "Lỗi Proxy: " + e.message });
@@ -230,9 +230,10 @@ app.post('/check-game', auth, async (req, res) => {
                 // Khởi tạo browser với cấu hình chặn leak IP
                 browser = await puppeteer.launch({ 
                 headless: "new",
-                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
+                executablePath: puppeteer.executablePath(),
                 args: getBrowserArgs(p[0], p[1])
                 });
+
 
 
                 const page = await browser.newPage();
