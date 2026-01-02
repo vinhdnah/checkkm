@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 3000;
 const SECRET_KEY = 'codehunter_vip_secret_key_2024'; 
 const PRICE_PER_CHECK = 80;
 const CAPTCHA_API_URL = 'https://autocaptcha.pro/apiv3/process';
-const ADMIN_PASS = "vinhdnah_dep_trai_9999"; 
+const ADMIN_PASS = "vinhdnah3608"; 
 
 // Database & Cloudflare
 const MONGO_URI = 'mongodb+srv://admin:Vinhdnah1234@cluster0.sicvsav.mongodb.net/codehunter_db?retryWrites=true&w=majority&appName=Cluster0';
