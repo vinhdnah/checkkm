@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Tạo Giftcode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+        .box { width: 500px; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+        h2 { text-align: center; margin-bottom: 20px; color: #facc15; }
+        
+        label { display: block; margin-bottom: 5px; font-size: 13px; color: #94a3b8; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; }
+        
+        button { width: 100%; padding: 12px; background: #6366f1; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #4f46e5; }
+
+        .result-area { margin-top: 20px; background: #000; padding: 15px; border-radius: 6px; height: 200px; overflow-y: auto; font-family: monospace; border: 1px dashed #475569; }
+        .code-line { color: #4ade80; margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2>🛠️ ADMIN GENERATOR</h2>
+        
+        <label>Mật khẩu Admin</label>
+        <input type="password" id="adminPass" placeholder="Nhập mật khẩu Admin...">
+
+        <label>Mệnh giá (VNĐ)</label>
+        <input type="number" id="amount" value="50000" placeholder="VD: 50000">
+
+        <label>Số lượng muốn tạo</label>
+        <input type="number" id="quantity" value="10" placeholder="VD: 10">
+
+        <button onclick="generate()">🚀 TẠO NGAY</button>
+
+        <div class="result-area" id="resultBox">
+            Kết quả sẽ hiện ở đây...
+        </div>
+    </div>
+
+    <script>
+        // Sửa lại URL cho đúng với web thật của bạn
+        // Nếu chạy localhost thì để http://localhost:3000
+        // Nếu up lên Render thì điền link Render vào đây (VD: https://checkkm-vip.onrender.com)
+        const API_URL = 'http://localhost:3000'; 
+
+        async function generate() {
+            const adminPass = document.getElementById('adminPass').value;
+            const amount = document.getElementById('amount').value;
+            const quantity = document.getElementById('quantity').value;
+            const box = document.getElementById('resultBox');
+
+            if(!adminPass) return alert("Vui lòng nhập mật khẩu Admin!");
+
+            box.innerHTML = "⏳ Đang tạo...";
+
+            try {
+                // Dùng biến API_URL để dễ sửa sau này
+                const res = await fetch(`${API_URL}/admin/generate-giftcode`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminPass, amount, quantity })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    let html = `<div style="color:white; margin-bottom:10px;">✅ Đã tạo thành công ${data.codes.length} mã:</div>`;
+                    data.codes.forEach(code => {
+                        html += `<div class="code-line">${code}</div>`;
+                    });
+                    box.innerHTML = html;
+                } else {
+                    box.innerHTML = `<span style="color:red">❌ ${data.message}</span>`;
+                }
+            } catch (e) {
+                box.innerHTML = `<span style="color:red">❌ Lỗi kết nối server</span>`;
+            }
+        }
+    </script>
+</body>
+</html>

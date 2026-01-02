@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Code Hunter</title>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --bg: #0f172a; --primary: #6366f1; --border: rgba(255,255,255,0.1); }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        
+        body {
+            background-color: var(--bg); color: white; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            background-image: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%);
+        }
+        
+        .auth-box {
+            width: 400px; background: #1e293b; padding: 40px; border-radius: 16px;
+            border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        
+        h2 { text-align: center; margin-bottom: 30px; font-weight: 700; color: white; }
+        
+        input {
+            width: 100%; padding: 14px; margin-bottom: 15px; background: #0f172a;
+            border: 1px solid #334155; color: white; border-radius: 8px; outline: none; transition: 0.2s;
+        }
+        input:focus { border-color: var(--primary); }
+        
+        button {
+            width: 100%; padding: 14px; background: var(--primary); color: white;
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px;
+        }
+        button:hover { background: #4f46e5; }
+        
+        .link { text-align: center; margin-top: 20px; color: #94a3b8; font-size: 14px; display: block; text-decoration: none; }
+        .link:hover { color: var(--primary); text-decoration: underline; }
+        
+        .cf-container { display: flex; justify-content: center; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-box">
+        <h2>CODE HUNTER</h2>
+        <input type="text" id="l_user" placeholder="Tên đăng nhập">
+        <input type="password" id="l_pass" placeholder="Mật khẩu">
+        
+        <div class="cf-container">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAACKI1I61RJ7w7tct" data-callback="onLoginToken"></div>
+        </div>
+
+        <button onclick="doLogin()">ĐĂNG NHẬP</button>
+        <a href="register.html" class="link">Chưa có tài khoản? Đăng ký</a>
+    </div>
+
+<script>
+    const API_URL = 'http://localhost:3000';
+    let CF_TOKEN = "";
+
+    window.onLoginToken = function(t) { CF_TOKEN = t; }
+
+    // Nếu đã đăng nhập thì đá sang Dashboard luôn
+    if(localStorage.getItem('token')) window.location.href = 'index.html';
+
+    async function doLogin() {
+        if(!CF_TOKEN) return alert("Vui lòng xác thực Cloudflare!");
+        const u = document.getElementById('l_user').value;
+        const p = document.getElementById('l_pass').value;
+
+        try {
+            const res = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username: u, password: p, cfToken: CF_TOKEN })
+            });
+            const data = await res.json();
+            
+            if(data.success) {
+                localStorage.setItem('token', data.token); // Lưu token
+                window.location.href = 'index.html'; // Chuyển sang Dashboard
+            } else {
+                alert("❌ " + data.message);
+                turnstile.reset();
+            }
+        } catch(e) { alert("Lỗi kết nối Server"); }
+    }
+</script>
+</body>
+</html>

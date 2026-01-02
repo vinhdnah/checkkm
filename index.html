@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Hunter Dashboard</title>
+    <script>
+        if(!localStorage.getItem('token')) window.location.href = 'login.html';
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-app: #0f172a;
+            --bg-panel: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1; 
+            --primary-hover: #4f46e5;
+            --success: #10b981;
+            --info: #0ea5e9;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --glass: blur(12px) saturate(180%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 40%);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 340px;
+            background: var(--bg-panel);
+            backdrop-filter: var(--glass);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .brand { font-size: 22px; font-weight: 700; color: white; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; letter-spacing: -0.5px; }
+        .control-group { margin-bottom: 5px; }
+        .label { font-size: 11px; text-transform: uppercase; color: var(--text-sub); font-weight: 600; margin-bottom: 8px; display: block; }
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 14px; }
+        input { width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); padding: 12px 12px 12px 36px; border-radius: 8px; color: white; font-family: 'Inter', sans-serif; font-size: 14px; transition: 0.2s; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        /* Buttons Sidebar */
+        .btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; font-size: 13px; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-info { background: rgba(14, 165, 233, 0.15); color: var(--info); border: 1px solid rgba(14, 165, 233, 0.3); }
+        .btn-secondary { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border); }
+        .btn-success { background: var(--success); color: white; }
+
+        .proxy-display { font-size: 12px; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px dashed var(--border); color: var(--text-sub); min-height: 45px; display: flex; align-items: center; }
+        .proxy-display.live { border-color: var(--success); color: var(--success); background: rgba(16, 185, 129, 0.1); }
+        .proxy-display.die { border-color: var(--danger); color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+        .proxy-display.confirmed { border-style: solid; border-color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+
+        /* --- USER BAR --- */
+        .user-bar { position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; gap: 12px; align-items: center; }
+        .balance-badge { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); color: var(--success); padding: 8px 16px; border-radius: 30px; font-weight: 700; font-size: 14px; }
+        .btn-logout { background: rgba(255,255,255,0.1); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-logout:hover { background: var(--danger); }
+
+        /* --- MAIN AREA --- */
+        .main { flex: 1; padding: 30px; overflow-y: auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+
+        /* --- NEW PRICING CARD STYLE --- */
+        .card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header-top {
+            width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+        }
+
+        .card-title { font-size: 18px; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px; }
+        .card-link { color: var(--text-sub); font-size: 14px; transition: 0.2s; }
+        .card-link:hover { color: var(--primary); }
+
+        /* GIÁ TIỀN - LÀM TO VÀ NỔI BẬT */
+        .card-price-box { margin: 10px 0 20px 0; }
+        .card-price { font-size: 32px; font-weight: 800; color: var(--success); letter-spacing: -1px; text-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+        .card-period { font-size: 14px; color: var(--text-sub); font-weight: 500; }
+
+        /* Nút bấm kiểu mới */
+        .btn-action {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: auto; /* Đẩy xuống đáy */
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+        .btn-action:hover { background: var(--primary-hover); transform: scale(1.02); }
+        .btn-action:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Console log thu gọn */
+        .console-log {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            color: var(--text-sub);
+            height: 60px; /* Nhỏ gọn */
+            overflow-y: auto;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        /* LED Indicator */
+        .led { width: 10px; height: 10px; border-radius: 50%; background: #475569; display: inline-block; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .led.active { background: var(--success); box-shadow: 0 0 10px var(--success); }
+        .led.error { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
+        .led.loading { background: var(--warning); animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.4; } }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <div class="user-bar">
+        <div style="color:white; font-weight:600;" id="displayUsername">Loading...</div>
+        <div class="balance-badge" id="displayBalance">...</div>
+        <button class="btn-logout" onclick="logout()" title="Đăng xuất"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fa-solid fa-crosshairs"></i> CODE HUNTER
+        </div>
+
+        <div class="control-group">
+            <label class="label">Tài khoản Game</label>
+            <div class="input-wrapper">
+                <i class="fa-regular fa-user"></i>
+                <input type="text" id="username" placeholder="Nhập username...">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="label">Cấu hình Proxy</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-network-wired"></i>
+                <input type="text" id="proxyInput" placeholder="IP:PORT:USER:PASS">
+            </div>
+        </div>
+
+        <div class="btn-grid">
+            <button class="btn btn-info" id="btnCheckProxy" onclick="checkProxyLive()">
+                <i class="fa-solid fa-wifi"></i> Check IP
+            </button>
+            <button class="btn btn-secondary" id="btnConfirm" onclick="confirmProxy()" disabled>
+                <i class="fa-solid fa-check"></i> Xác nhận
+            </button>
+        </div>
+
+        <div id="proxyDisplay" class="proxy-display">
+            <div id="proxyStatusText">Vui lòng nhập Proxy...</div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border);">
+
+        <div class="control-group">
+            <label class="label">API Key (Captcha)</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-key"></i>
+                <input type="password" id="apiKey" value="bd388f89ab05276b17414163da80028a">
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label class="label">Nạp Giftcode</label>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="giftcode" placeholder="Nhập mã...">
+                <button class="btn-success" style="width:50px; border-radius:8px; border:none; cursor:pointer;" onclick="redeemGift()"><i class="fa-solid fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
+            <button class="btn btn-primary" onclick="runCheckAll()">
+                <i class="fa-solid fa-rocket"></i> QUÉT TẤT CẢ
+            </button>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div id="gridArea" class="grid">
+            </div>
+    </main>
+
+<script>
+    const API_URL = 'http://localhost:3000';
+    const TOKEN = localStorage.getItem('token'); 
+
+    // DATA
+    const SITES = [
+        { name: "TT88", url: "https://tt88code.win/" },
+        { name: "88VV", url: "https://88vvcode.com/" },
+        { name: "MMOO", url: "https://mmoocode.shop/" },
+        { name: "33WIN", url: "https://33wincode.com/" },
+        { name: "789P", url: "https://789pcode.store/" },
+        { name: "GO99", url: "https://go99code.store/" },
+        { name: "NOHU", url: "https://nohucode.shop/" }
+    ];
+
+    let CONFIRMED_PROXY = null;
+    let TEMP_PROXY_VALID = false; 
+
+    // RENDER UI MỚI (PRICING CARD STYLE)
+    const grid = document.getElementById('gridArea');
+    SITES.forEach((site, idx) => {
+        grid.innerHTML += `
+            <div class="card">
+                <div class="card-header-top">
+                    <div class="card-title">
+                        <span class="led" id="led-${idx}"></span> ${site.name}
+                    </div>
+                    <a href="${site.url}" target="_blank" class="card-link" title="Mở Web">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
+                </div>
+
+                <div class="card-price-box">
+                    <div class="card-price">80<span style="font-size:20px">đ</span></div>
+                    <div class="card-period">/ 1 lần kiểm tra</div>
+                </div>
+
+                <div class="console-log" id="log-${idx}">Sẵn sàng...</div>
+
+                <button class="btn-action" id="btn-${idx}" onclick="runCheckSingle(${idx})">
+                    <i class="fa-solid fa-play"></i> Kiểm Tra Ngay
+                </button>
+            </div>
+        `;
+    });
+
+    const getVal = (id) => document.getElementById(id).value.trim();
+    const setLog = (idx, msg, type = 'normal') => {
+        const log = document.getElementById(`log-${idx}`);
+        const led = document.getElementById(`led-${idx}`);
+        log.innerHTML = msg;
+        led.className = 'led';
+        log.style.color = 'var(--text-sub)';
+
+        if(type === 'loading') { led.classList.add('loading'); log.style.color = '#fbbf24'; }
+        else if (type === 'success') { led.classList.add('active'); log.style.color = '#34d399'; }
+        else if (type === 'error') { led.classList.add('error'); log.style.color = '#f87171'; }
+    };
+
+    // --- SYSTEM FUNCTIONS ---
+    function logout() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
+    
+    async function updateUserInfo() {
+        try {
+            const res = await fetch(`${API_URL}/user/me`, { headers: { 'Authorization': `Bearer ${TOKEN}` } });
+            if(res.status === 401) return logout();
+            const data = await res.json();
+            document.getElementById('displayUsername').innerText = data.username;
+            document.getElementById('displayBalance').innerText = data.balance.toLocaleString() + 'đ';
+        } catch(e) {}
+    }
+
+    async function redeemGift() {
+        try {
+            const code = document.getElementById('giftcode').value;
+            const res = await fetch(`${API_URL}/user/giftcode`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                body: JSON.stringify({ code })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if(data.success) updateUserInfo();
+        } catch(e) { alert("Lỗi Server"); }
+    }
+
+    // --- PROXY LOGIC ---
+    async function checkProxyLive() {
+        const proxy = getVal('proxyInput');
+        const display = document.getElementById('proxyDisplay');
+        const text = document.getElementById('proxyStatusText');
+        const btnCheck = document.getElementById('btnCheckProxy');
+        const btnConfirm = document.getElementById('btnConfirm');
+
+        CONFIRMED_PROXY = null; TEMP_PROXY_VALID = false;
+        btnConfirm.disabled = true; btnConfirm.className = 'btn btn-secondary';
+        display.className = 'proxy-display';
+
+        if(proxy.split(':').length !== 4) { text.innerText = "❌ Sai format"; display.classList.add('die'); return; }
+
+        btnCheck.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking...`;
+        btnCheck.disabled = true; text.innerText = "Đang kết nối Server...";
+
+        try {
+            const res = await fetch(`${API_URL}/check-proxy`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ proxy })
+            });
+            const data = await res.json();
+            if(data.success) {
+                display.classList.add('live'); text.innerHTML = `✅ Live: ${data.data.country}<br>IP: ${data.data.query}`;
+                btnConfirm.disabled = false; btnConfirm.className = 'btn btn-primary'; TEMP_PROXY_VALID = true;
+            } else { display.classList.add('die'); text.innerText = "❌ Proxy chết"; }
+        } catch(e) { display.classList.add('die'); text.innerText = "❌ Lỗi Server Backend"; } 
+        finally { btnCheck.innerHTML = `<i class="fa-solid fa-wifi"></i> Check IP`; btnCheck.disabled = false; }
+    }
+
+    function confirmProxy() {
+        if(!TEMP_PROXY_VALID) return;
+        CONFIRMED_PROXY = getVal('proxyInput');
+        const display = document.getElementById('proxyDisplay');
+        display.className = 'proxy-display confirmed';
+        document.getElementById('proxyStatusText').innerHTML = `🛡️ <b>ĐÃ XÁC NHẬN</b><br>Proxy sẵn sàng sử dụng.`;
+        document.getElementById('btnConfirm').innerHTML = `<i class="fa-solid fa-lock"></i> Đã lưu`;
+        document.getElementById('btnConfirm').className = 'btn btn-success';
+        document.getElementById('btnConfirm').disabled = true;
+    }
+
+    // --- CHECK GAME LOGIC ---
+    async function runCheckSingle(idx) {
+        if(!CONFIRMED_PROXY) return alert("⚠️ Vui lòng Check Proxy và bấm 'Xác nhận' trước!");
+        const username = getVal('username');
+        const apiKey = getVal('apiKey');
+        if(!username) return alert("Chưa nhập Username!");
+
+        const btn = document.getElementById(`btn-${idx}`);
+        const site = SITES[idx];
+
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Đang chạy...`;
+        setLog(idx, `Đang xử lý (-80đ)...`, 'loading');
+
+        try {
+            const res = await fetch(`${API_URL}/check-game`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${TOKEN}` },
+                body: JSON.stringify({ url: site.url, username, proxy: CONFIRMED_PROXY, apiKey })
+            });
+            const data = await res.json();
+            
+            if(data.balance !== undefined) document.getElementById('displayBalance').innerText = data.balance.toLocaleString() + 'đ';
+
+            if(data.success) {
+                if(data.message.includes("không phù hợp") || data.message.includes("Rất tiếc")) setLog(idx, data.message, 'error');
+                else setLog(idx, data.message, 'success');
+            } else setLog(idx, `Lỗi: ${data.message}`, 'error');
+        } catch(e) { setLog(idx, `Lỗi kết nối`, 'error'); } 
+        finally { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-play"></i> Kiểm Tra Ngay`; }
+    }
+
+    async function runCheckAll() {
+        if(!CONFIRMED_PROXY) return alert("Chưa xác nhận Proxy!");
+        const btnAll = document.querySelector('.btn-primary');
+        const oldText = btnAll.innerHTML;
+        btnAll.disabled = true; btnAll.innerHTML = "ĐANG CHẠY...";
+        for(let i=0; i<SITES.length; i++) await runCheckSingle(i);
+        btnAll.disabled = false; btnAll.innerHTML = oldText; alert("Hoàn thành!");
+    }
+
+    updateUserInfo();
+</script>
+</body>
+</html>
