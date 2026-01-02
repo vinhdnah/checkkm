@@ -181,8 +181,17 @@ app.post('/check-proxy', async (req, res) => {
         await page.authenticate({ username: p[2], password: p[3] });
         
         // Tăng timeout lên 30s để kịp load proxy
-        await page.goto('http://ip-api.com/json', { timeout: 30000 });
+        await page.goto('https://api.ipify.org?format=json', { timeout: 30000, waitUntil: 'domcontentloaded' });
         const content = await page.evaluate(() => document.body.innerText);
+
+        let parsed;
+        try { parsed = JSON.parse(content); }
+        catch {
+        throw new Error("Proxy có phản hồi nhưng không phải JSON: " + content.slice(0, 120));
+        }
+
+        res.json({ success: true, data: parsed });
+
         await browser.close();
         res.json({ success: true, data: JSON.parse(content) });
     } catch (e) {

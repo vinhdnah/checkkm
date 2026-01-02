@@ -352,7 +352,11 @@
             if(data.success) {
                 display.classList.add('live'); text.innerHTML = `✅ Live: ${data.data.country}<br>IP: ${data.data.query}`;
                 btnConfirm.disabled = false; btnConfirm.className = 'btn btn-primary'; TEMP_PROXY_VALID = true;
-            } else { display.classList.add('die'); text.innerText = "❌ Proxy chết"; }
+            } else {
+            display.classList.add('die');
+            text.innerText = "❌ " + (data.message || "Proxy lỗi/không phản hồi");
+            }
+
         } catch(e) { display.classList.add('die'); text.innerText = "❌ Lỗi Server Backend"; } 
         finally { btnCheck.innerHTML = `<i class="fa-solid fa-wifi"></i> Check IP`; btnCheck.disabled = false; }
     }
