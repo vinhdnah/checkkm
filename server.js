@@ -173,9 +173,11 @@ app.post('/check-proxy', async (req, res) => {
 
         // Sử dụng cấu hình chuẩn
         browser = await puppeteer.launch({ 
-            headless: "new", 
-            args: getBrowserArgs(p[0], p[1])
+        headless: "new",
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
+        args: getBrowserArgs(p[0], p[1])
         });
+
 
         const page = await browser.newPage();
         await page.authenticate({ username: p[2], password: p[3] });
@@ -227,9 +229,11 @@ app.post('/check-game', auth, async (req, res) => {
                 
                 // Khởi tạo browser với cấu hình chặn leak IP
                 browser = await puppeteer.launch({ 
-                    headless: "new", 
-                    args: getBrowserArgs(p[0], p[1])
+                headless: "new",
+                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
+                args: getBrowserArgs(p[0], p[1])
                 });
+
 
                 const page = await browser.newPage();
                 await page.authenticate({ username: p[2], password: p[3] });
