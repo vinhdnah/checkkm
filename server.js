@@ -9,12 +9,16 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const app = express();
+
 app.use(cors({
   origin: ['https://checkkm.vercel.app'],
-  methods: ['GET','POST','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-app.options('*', cors());
+
+// Fix cho Express 5 (không dùng '*')
+app.options(/.*/, cors());
+
 
 app.use(bodyParser.json());
 
