@@ -13,7 +13,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // --- CẤU HÌNH ---
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
 const SECRET_KEY = 'codehunter_vip_secret_key_2024'; 
 const PRICE_PER_CHECK = 80;
 const CAPTCHA_API_URL = 'https://autocaptcha.pro/apiv3/process';
