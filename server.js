@@ -242,7 +242,7 @@ app.post('/check-game', auth, async (req, res) => {
                 await page.goto(url, { waitUntil: 'domcontentloaded' });
                 await delay(2000);
                 
-                await page.waitForSelector('#ten_tai_khoan', {timeout: 3000});
+                await page.waitForSelector('#ten_tai_khoan', {timeout: 10000});
                 await page.evaluate((u) => {
                     const i = document.querySelector('#ten_tai_khoan');
                     if(i){ i.value = u; i.dispatchEvent(new Event('input')); }
@@ -289,7 +289,7 @@ app.post('/check-game', auth, async (req, res) => {
                 // Submit
                 await page.evaluate(()=>document.querySelector('#casinoSubmit')?.click());
                 try {
-                    await page.waitForSelector('#formErrorPopup', {visible:true, timeout:5000});
+                    await page.waitForSelector('#formErrorPopup', {visible:true, timeout:10000});
                     finalResult = await page.evaluate(()=>document.querySelector('#formErrorMsg').innerText);
                 } catch(e) { finalResult = "Đã submit (Không thấy thông báo)"; }
 
