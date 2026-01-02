@@ -411,22 +411,6 @@
     updateUserInfo();
 </script>
 </body>
-
-</html>
-
-
-ưa xác nhận Proxy!");
-        const btnAll = document.querySelector('.btn-primary');
-        const oldText = btnAll.innerHTML;
-        btnAll.disabled = true; btnAll.innerHTML = "ĐANG CHẠY...";
-        for(let i=0; i<SITES.length; i++) await runCheckSingle(i);
-        btnAll.disabled = false; btnAll.innerHTML = oldText; alert("Hoàn thành!");
-    }
-
-    updateUserInfo();
-</script>
-</body>
-
 </html>
 
 
