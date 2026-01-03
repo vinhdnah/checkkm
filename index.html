@@ -168,9 +168,113 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        /* Perf hint: giảm repaint */
+        .card, .sidebar { will-change: transform; }
+        @media (prefers-reduced-motion: reduce) {
+        * { transition: none !important; animation: none !important; }
+        }
+
+        /* --- Topbar (mobile) --- */
+        .topbar {
+        display: none;
+        position: sticky;
+        top: 0;
+        z-index: 120;
+        height: 56px;
+        padding: 0 14px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(15, 23, 42, 0.92);
+        backdrop-filter: blur(10px);
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        }
+
+        .topbar-title {
+        display: flex; align-items: center; gap: 10px;
+        font-weight: 800; letter-spacing: -0.3px;
+        }
+
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+        .icon-btn {
+        width: 40px; height: 40px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.06);
+        color: var(--text-main);
+        display: inline-flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        }
+        .icon-btn.danger:hover { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.5); }
+
+        /* Overlay */
+        .overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.55);
+        opacity: 0; pointer-events: none;
+        transition: opacity .2s ease;
+        z-index: 110;
+        }
+        .overlay.show { opacity: 1; pointer-events: auto; }
+
+        /* --- Responsive layout --- */
+        @media (max-width: 980px) {
+        body { display: block; overflow: auto; height: auto; }
+        .topbar { display: flex; }
+
+        /* user-bar trên desktop -> ẩn bớt khi mobile */
+        .user-bar { display: none; }
+
+        .main { padding: 16px; }
+
+        /* Sidebar biến thành drawer */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            width: min(360px, 88vw);
+            transform: translateX(-105%);
+            transition: transform .22s ease;
+            z-index: 115;
+        }
+        .sidebar.open { transform: translateX(0); }
+
+        /* Giảm blur/backdrop để đỡ lag trên điện thoại yếu */
+        .sidebar { backdrop-filter: none; }
+        .card { backdrop-filter: none; }
+        }
+
+        @media (max-width: 520px) {
+        .grid { grid-template-columns: 1fr; gap: 14px; }
+        .card { padding: 18px; border-radius: 14px; }
+        .card-price { font-size: 28px; }
+        .console-log { height: 72px; }
+        }
+
     </style>
 </head>
 <body>
+<!-- Mobile Topbar -->
+<header class="topbar">
+  <button class="icon-btn" id="btnMenu" aria-label="Mở menu">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <div class="topbar-title">
+    <i class="fa-solid fa-crosshairs"></i>
+    <span>CODE HUNTER</span>
+  </div>
+
+  <div class="topbar-right">
+    <div class="balance-badge" id="displayBalanceMobile">...</div>
+    <button class="icon-btn danger" onclick="logout()" title="Đăng xuất">
+      <i class="fa-solid fa-right-from-bracket"></i>
+    </button>
+  </div>
+</header>
+
+<div class="overlay" id="overlay"></div>
 
     <div class="user-bar">
         <div style="color:white; font-weight:600;" id="displayUsername">Loading...</div>
@@ -245,6 +349,26 @@
 <script>
     const API_URL = 'https://checkkm.onrender.com';
     const TOKEN = localStorage.getItem('token'); 
+    // Mobile drawer
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('overlay');
+    const btnMenu = document.getElementById('btnMenu');
+
+    function openMenu() {
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
+    }
+    function closeMenu() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    }
+    btnMenu?.addEventListener('click', openMenu);
+    overlay?.addEventListener('click', closeMenu);
+
+    // Đóng menu khi bấm 1 nút trong sidebar (mobile)
+    sidebar?.addEventListener('click', (e) => {
+    if (window.innerWidth <= 980 && e.target.closest('button')) closeMenu();
+    });
 
     // DATA
     const SITES = [
@@ -260,33 +384,37 @@
     let CONFIRMED_PROXY = null;
     let TEMP_PROXY_VALID = false; 
 
-    // RENDER UI MỚI (PRICING CARD STYLE)
     const grid = document.getElementById('gridArea');
+    const frag = document.createDocumentFragment();
     SITES.forEach((site, idx) => {
-        grid.innerHTML += `
-            <div class="card">
-                <div class="card-header-top">
-                    <div class="card-title">
-                        <span class="led" id="led-${idx}"></span> ${site.name}
-                    </div>
-                    <a href="${site.url}" target="_blank" class="card-link" title="Mở Web">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                    </a>
-                </div>
-
-                <div class="card-price-box">
-                    <div class="card-price">80<span style="font-size:20px">đ</span></div>
-                    <div class="card-period">/ 1 lần kiểm tra</div>
-                </div>
-
-                <div class="console-log" id="log-${idx}">Sẵn sàng...</div>
-
-                <button class="btn-action" id="btn-${idx}" onclick="runCheckSingle(${idx})">
-                    <i class="fa-solid fa-play"></i> Kiểm Tra Ngay
-                </button>
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `
+        <div class="card">
+        <div class="card-header-top">
+            <div class="card-title">
+            <span class="led" id="led-${idx}"></span> ${site.name}
             </div>
-        `;
+            <a href="${site.url}" target="_blank" class="card-link" title="Mở Web">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+        </div>
+
+        <div class="card-price-box">
+            <div class="card-price">80<span style="font-size:20px">đ</span></div>
+            <div class="card-period">/ 1 lần kiểm tra</div>
+        </div>
+
+        <div class="console-log" id="log-${idx}">Sẵn sàng...</div>
+
+        <button class="btn-action" id="btn-${idx}" onclick="runCheckSingle(${idx})">
+            <i class="fa-solid fa-play"></i> Kiểm Tra Ngay
+        </button>
+        </div>
+    `.trim();
+    frag.appendChild(wrap.firstElementChild);
     });
+    grid.appendChild(frag);
+
 
     const getVal = (id) => document.getElementById(id).value.trim();
     const setLog = (idx, msg, type = 'normal') => {
@@ -403,16 +531,25 @@
         finally { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-play"></i> Kiểm Tra Ngay`; }
     }
 
-    async function runCheckAll() {
+        async function runCheckAll() {
         if(!CONFIRMED_PROXY) return alert("Chưa xác nhận Proxy!");
         const btnAll = document.querySelector('.btn-primary');
         const oldText = btnAll.innerHTML;
         btnAll.disabled = true; btnAll.innerHTML = "ĐANG CHẠY...";
-        for(let i=0; i<SITES.length; i++) await runCheckSingle(i);
-        btnAll.disabled = false; btnAll.innerHTML = oldText; alert("Hoàn thành!");
-    }
 
-    updateUserInfo();
+        for(let i=0; i<SITES.length; i++) {
+            await new Promise(r => requestAnimationFrame(r)); // nhường UI 1 frame
+            await runCheckSingle(i);
+        }
+
+        btnAll.disabled = false; btnAll.innerHTML = oldText;
+        alert("Hoàn thành!");
+        }
+
+
+    document.getElementById('displayBalance').innerText = data.balance.toLocaleString() + 'đ';
+    const mb = document.getElementById('displayBalanceMobile');
+    if (mb) mb.innerText = data.balance.toLocaleString() + 'đ';
 </script>
 </body>
 </html>
