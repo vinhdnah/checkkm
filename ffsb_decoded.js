@@ -136,7 +136,32 @@
 
             // 5. Số điện thoại
             else if (/số điện thoại|phone|mobile|sdt|mobilenum/i.test(label)) {
-                setInputValue(el, currentUserData.phone);
+                let phoneVal = String(currentUserData.phone || "").trim();
+
+                // Chuẩn hóa về dạng 09... (nếu người dùng vô tình copy dư +84)
+                if (phoneVal.startsWith('+84')) phoneVal = '0' + phoneVal.slice(3);
+                else if (phoneVal.startsWith('84') && phoneVal.length >= 11) phoneVal = '0' + phoneVal.slice(2);
+
+                // Kiểm tra xem Form có gắn định dạng sẵn +84 cạnh ô input không
+                let p = el.parentElement;
+                let hasCountryCode = false;
+                for (let i = 0; i < 3; i++) {
+                    if (p) {
+                        let text = p.textContent || p.innerText || "";
+                        if (text.includes('+84') || text.match(/\b84\b/)) {
+                            hasCountryCode = true;
+                            break;
+                        }
+                        p = p.parentElement;
+                    }
+                }
+
+                // Nếu có +84 bao bọc ở ngoài thì tự động cắt số 0
+                if (hasCountryCode && phoneVal.startsWith('0')) {
+                    phoneVal = phoneVal.substring(1);
+                }
+
+                setInputValue(el, phoneVal);
             }
 
             // 6. Số tài khoản / Ngân hàng
