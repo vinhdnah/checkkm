@@ -17,6 +17,13 @@
 
     let currentUserData = null;
 
+    // --- XUẤT HÀM RA GLOBAL ĐỂ datadata.js GỌI TRỰC TIẾP ---
+    window.__ffsb = {
+        paste: loadDataFromClipboard,
+        fill: autoFillForm,
+        config: CONFIG
+    };
+
     // --- 1. HỆ THỐNG THÔNG BÁO (TOAST) ---
     function showToast(message, type = 'success') {
         let toast = document.getElementById('_ffsb_toast');
