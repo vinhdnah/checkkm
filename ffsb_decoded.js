@@ -17,7 +17,7 @@
 
     let currentUserData = null;
 
-    // --- XUẤT HÀM RA GLOBAL ĐỂ datadata.js GỌI TRỰC TIẾP ---
+    // --- XUẤT HÀM RA GLOBAL NGAY LẬP TỨC (KHÔNG CHỜ UI) ---
     window.__ffsb = {
         paste: loadDataFromClipboard,
         fill: autoFillForm,
@@ -116,29 +116,29 @@
             if (/tên đăng nhập|tên người dùng|username|user|account/i.test(label)) {
                 setInputValue(el, currentUserData.username);
             }
-            
+
             // 2. Mật khẩu (Chấp nhận cả type="text" nếu placeholder/name là mật khẩu)
             else if (/mật khẩu(?! rút)|password|pass/i.test(label)) {
                 if (type === "password" || type === "text") {
                     setInputValue(el, currentUserData.pw);
                 }
             }
-            
+
             // 3. Mật khẩu rút
             else if (/mật khẩu rút|pin|withdraw/i.test(label)) {
                 setInputValue(el, currentUserData.wd);
             }
-            
+
             // 4. Họ và tên
             else if (/họ\s*(?:và|&)\s*tên|full.?name|name|payeename/i.test(label)) {
                 setInputValue(el, currentUserData.name);
             }
-            
+
             // 5. Số điện thoại
             else if (/số điện thoại|phone|mobile|sdt|mobilenum/i.test(label)) {
                 setInputValue(el, currentUserData.phone);
             }
-            
+
             // 6. Số tài khoản / Ngân hàng
             else if (/số tài khoản|stk|bank.?number/i.test(label)) {
                 setInputValue(el, currentUserData.stk);
