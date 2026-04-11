@@ -232,7 +232,17 @@
         fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => { document.getElementById('f_ip').innerText = "IP: " + d.ip; });
     }
 
-    renderTool();
-    solveCaptcha(); // Thử giải captcha khi load
+    // --- KHỞI CHẠY ---
+    function init() {
+        renderTool();
+        solveCaptcha(); // Thử giải captcha khi load
+    }
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        init();
+    } else {
+        document.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('load', init);
+    }
 
 })();
