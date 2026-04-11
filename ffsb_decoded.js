@@ -109,33 +109,34 @@
 
         const inputs = document.querySelectorAll('input, textarea, select');
         inputs.forEach(el => {
-            const label = (el.placeholder || el.id || el.name || (el.labels && el.labels[0]?.innerText) || "").toLowerCase();
+            // Gộp TẤT CẢ các thuộc tính lại để phòng hờ placeholder không chuẩn nhưng name/id lại chuẩn
+            const labelStr = `${el.placeholder || ""} ${el.id || ""} ${el.name || ""} ${(el.labels && el.labels[0]?.innerText) || ""}`.toLowerCase();
             const type = (el.type || "").toLowerCase();
 
             // 1. Tên đăng nhập
-            if (/tên đăng nhập|tên người dùng|username|user|account/i.test(label)) {
+            if (/tên đăng nhập|tên người dùng|username|user|account/i.test(labelStr)) {
                 setInputValue(el, currentUserData.username);
             }
 
             // 2. Mật khẩu (Chấp nhận cả type="text" nếu placeholder/name là mật khẩu)
-            else if (/mật khẩu(?! rút)|password|pass/i.test(label)) {
+            else if (/mật khẩu(?! rút)|password|pass/i.test(labelStr)) {
                 if (type === "password" || type === "text") {
                     setInputValue(el, currentUserData.pw);
                 }
             }
 
             // 3. Mật khẩu rút
-            else if (/mật khẩu rút|pin|withdraw/i.test(label)) {
+            else if (/mật khẩu rút|pin|withdraw/i.test(labelStr)) {
                 setInputValue(el, currentUserData.wd);
             }
 
             // 4. Họ và tên
-            else if (/họ\s*(?:và|&)\s*tên|full.?name|name|payeename/i.test(label)) {
+            else if (/họ\s*(?:và|&)\s*tên|full.?name|name|payeename/i.test(labelStr)) {
                 setInputValue(el, currentUserData.name);
             }
 
-            // 5. Số điện thoại
-            else if (/số điện thoại|phone|mobile|sdt|mobilenum/i.test(label)) {
+            // 5. Số điện thoại (thêm "sđt" thay vì chỉ "sdt")
+            else if (/số điện thoại|phone|mobile|sdt|sđt|mobilenum/i.test(labelStr)) {
                 let phoneVal = String(currentUserData.phone || "").trim();
 
                 // Chuẩn hóa về dạng 09... (nếu người dùng vô tình copy dư +84)
