@@ -460,10 +460,92 @@
                     <div class="btn-icon">✨</div>
                     <div>Tạo Base64</div>
                 </button>
+                <button class="btn" onclick="saveAndNext()">
+                    <div class="btn-icon">➡️</div>
+                    <div>Tạo Tiếp (Lưu lại)</div>
+                </button>
                 <button class="btn" style="grid-column: 1 / -1;" onclick="exportShadowrocket()">
                     <div class="btn-icon">🚀</div>
                     <div>Xuất file Shadowrocket.conf</div>
                 </button>
+            </div>
+
+            <div style="margin-top: -15px; margin-bottom: 30px;">
+                <details
+                    style="background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 10px; padding: 10px;">
+                    <summary style="cursor: pointer; color: var(--accent-glow); font-size: 0.9rem; font-weight: bold;">
+                        🏦 Xem Danh Sách Ngân Hàng Hỗ Trợ Nhập Random / Bằng tay</summary>
+                    <div
+                        style="margin-top: 10px; font-size: 0.8rem; color: var(--text-muted); max-height: 200px; overflow-y: auto; white-space: pre-wrap; line-height: 1.4;">
+                        Bạn có thể nhập tên hoặc các từ viết tắt sau:
+
+                        • TECHCOM BANK: TECHCOMB, TECHCOMBANK
+                        • VIETIN BANK: VIETINBA, VIETINBANK
+                        • EXIMBANK: EXIM, EXIMBANK
+                        • BIDV BANK: BIDV, BIDVBANK
+                        • ACB BANK: ACB, ACBBANK
+                        • SACOM BANK: SBANK, SACOMBANK
+                        • VPBANK: VPBANK
+                        • MB BANK: MBBANK, MBBank, MB BANK, mbbank, mb
+                        • SHB BANK: SHBBANK
+                        • TPBANK: TPBANK
+                        • MSB: MARIBANK, MSB BANK
+                        • VIB BANK: VIBBANK
+                        • VIETCOM BANK: VIETCOMB, VIETCOMBANK
+                        • AB BANK: ABB, ABBANK
+                        • AGRIBANK: AGRIBANK
+                        • ANZ BANK: ANZBANK
+                        • BAC A BANK: BAB, BACABANK
+                        • BAOVIET BANK: BAOVIETBANK, VIETBANK, BVB
+                        • BVBANK: BANVIETBANK
+                        • CAKE: CAKE
+                        • CB BANK: SCBBANK, CBBANK
+                        • CIMB:
+                        • Co-opBank: COOPBANK
+                        • DBS: DBSVND
+                        • GPBANK: GPBANK
+                        • HD BANK: HDBANK
+                        • Hong Leong Bank: HLBANK, HONG LEONG BANK, HongLeongBank
+                        • HSBC: HSBCBANK
+                        • IBK: IBKHANOI
+                        • KASIKORNBANK: KBANK, KASIKORNBANK, KTBANK
+                        • KB KOOKMIN BANK: KOOKMIN, KB KOOKMIN BANK, KBKOOKMINBANK
+                        • KIENLONG BANK: KLBANK, KIENLONGBANK
+                        • LIO BANK: LIOBANK
+                        • NAM A BANK: NAMABA, NAM A BANK, NAMABANK
+                        • OCB BANK: OCBBANK
+                        • PG BANK: PGBA, PG BANK, PGBANK
+                        • Public Bank: PBVN, PUBLIC BANK VIETNAM, PublicBank
+                        • PVCOM BANK: PVCOMBANK
+                        • SAIGON BANK: SABANK, SAIGONBANK
+                        • SEA BANK: SEABANK
+                        • SHINHAN BANK: SHINHB, SHINHANBANK
+                        • UBANK: UBANK
+                        • UOB (United Overseas Bank): UOB, UNITED OVERSEAS BANK, UOB(UnitedOverseasBank)
+                        • VIET A BANK: VABANK, VIET A BANK, VIETABANK
+                        • VIET BANK: VIETBANK
+                        • Vikki by HD BANK: VikkibyHDBANK
+                        • WOORI BANK: WRBANK, WOORI BANK, WOORIBANK
+                        • ACB: ACB, ACB
+                        • MBV: MBV, MBV
+                        • VIKKI BANK: DONGABANK, VIKKI BANK, VIKKIBANK
+                        • TIMOBANK: TIMOBANK, TIMOBANK
+                        • NORTH AMERICAN SAVINGS BANK: NASB, NORTH AMERICAN SAVINGS BANK, NORTHAMERICANSAVINGSBANK
+                        • STANCHART: SCVN, STANCHART
+                        • VIETNAM RUSSIA BANK: VRB, VIETNAM RUSSIA BANK, VIETNAMRUSSIABANK
+                        • DONG A BANK: DAB, DONG A BANK, DONGABANK
+                        • OCBANK: OCBANK, OCBANK
+                        • VIET NAM SOCIAL POLICY BANK: VBSP, VIET NAM SOCIAL POLICY BANK, VIETNAMSOCIALPOLICYBANK
+                        • PVBANK: PVBANK, PVBANK
+                        • HOUSING BANK: MHB, HOUSING BANK, HOUSINGBANK
+                        • VIB: VIB, VIBBANK
+                        • SHB: SHB, SHB
+                        • IVB: INDOBANK, IVB
+                        • NCB: NCB, NCB
+                        • CB BANK: VNDCBANK, CB BANK, CBBANK
+                        • CIMB BANK: CIMBVND, CIMB BANK, CIMBBANK
+                        • LIENVIETPOSTBANK: LVPBANK, LIENVIETPOSTBANK</div>
+                </details>
             </div>
 
             <div class="info-card">
@@ -477,6 +559,13 @@
                 <h3>Mã Base64 (copy dòng này dán qua JS):</h3>
                 <button class="copy-btn" onclick="copyBase64()">Copy</button>
                 <div class="base64-box" id="base64Output">Chưa tạo mã Base64...</div>
+            </div>
+
+            <div id="savedContainer" style="display:none; margin-top: 40px;">
+                <h3
+                    style="color: var(--text-muted); margin-bottom: 15px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
+                    💾 Dữ Liệu Đã Lưu</h3>
+                <div id="savedList" style="display: flex; flex-direction: column; gap: 15px;"></div>
             </div>
         </div>
     </div>
@@ -531,6 +620,11 @@
                 <label>Mật khẩu rút tiền mặc định</label>
                 <input type="text" class="form-control" id="def_wd" placeholder="Để trống nếu muốn random">
             </div>
+            <div class="form-group">
+                <label>Ngân hàng mặc định</label>
+                <input type="text" class="form-control" id="def_bank"
+                    placeholder="VD: MBBANK, VCB... (Để trống nếu muốn random)">
+            </div>
             <button class="save-btn" onclick="saveDefaultPass()">Lưu Thiết Lập</button>
         </div>
     </div>
@@ -539,6 +633,7 @@
 
     <script>
         // Data Khởi tạo
+        let dataList = JSON.parse(localStorage.getItem('bot_savedDataList')) || [];
         let currentData = {
             username: "",
             pw: "",
@@ -551,7 +646,8 @@
 
         let defaultPass = {
             pw: "lamtooltheoyeucau",
-            wd: "123123"
+            wd: "123123",
+            bank: ""
         };
 
         const labels = [
@@ -567,10 +663,12 @@
         // Khởi động
         window.onload = () => {
             renderUI();
+            renderSavedUI();
 
             // Render Default Passwords initial state in modal
             document.getElementById('def_pw').value = defaultPass.pw;
             document.getElementById('def_wd').value = defaultPass.wd;
+            document.getElementById('def_bank').value = defaultPass.bank;
         }
 
         // Cập nhật giao diện
@@ -607,7 +705,7 @@
         }
 
         // Random Dữ Liệu
-        function generateRandomData() {
+        function generateRandomData(silent = false) {
             const randStr = (len) => Math.random().toString(36).substring(2, 2 + len).toLowerCase();
             const randNum = (len) => Math.floor(Math.random() * Math.pow(10, len)).toString().padStart(len, '0');
 
@@ -616,7 +714,17 @@
             const lNames = ["ANH", "TUAN", "MINH", "THU", "HA", "TRANG", "THAO", "HUNG", "DAT", "PHONG", "NAM", "LONG", "PHUONG"];
 
             const rndName = `${fNames[Math.floor(Math.random() * fNames.length)]} ${mNames[Math.floor(Math.random() * mNames.length)]} ${lNames[Math.floor(Math.random() * lNames.length)]}`;
-            const banks = ['MBBANK', 'VCB', 'TCB', 'BIDV', 'VPBANK', 'ACB'];
+            const banks = [
+                "TECHCOM BANK", "VIETIN BANK", "EXIMBANK", "BIDV BANK", "ACB BANK", "SACOM BANK", "VPBANK", "MB BANK",
+                "SHB BANK", "TPBANK", "MSB", "VIB BANK", "VIETCOM BANK", "AB BANK", "AGRIBANK", "ANZ BANK", "BAC A BANK",
+                "BAOVIET BANK", "BVBANK", "CAKE", "CB BANK", "CIMB", "Co-opBank", "DBS", "GPBANK", "HD BANK", "Hong Leong Bank",
+                "HSBC", "IBK", "KASIKORNBANK", "KB KOOKMIN BANK", "KIENLONG BANK", "LIO BANK", "NAM A BANK", "OCB BANK",
+                "PG BANK", "Public Bank", "PVCOM BANK", "SAIGON BANK", "SEA BANK", "SHINHAN BANK", "UBANK",
+                "UOB (United Overseas Bank)", "VIET A BANK", "VIET BANK", "Vikki by HD BANK", "WOORI BANK", "ACB", "MBV",
+                "VIKKI BANK", "TIMOBANK", "NORTH AMERICAN SAVINGS BANK", "STANCHART", "VIETNAM RUSSIA BANK", "DONG A BANK",
+                "OCBANK", "VIET NAM SOCIAL POLICY BANK", "PVBANK", "HOUSING BANK", "VIB", "SHB", "IVB", "NCB", "CIMB BANK",
+                "LIENVIETPOSTBANK"
+            ];
 
             // Tạo username ngẫu nhiên (chữ thường + số, không bắt đầu bằng số)
             const letters = "abcdefghijklmnopqrstuvwxyz";
@@ -634,11 +742,71 @@
                 name: rndName,
                 phone: '09' + randNum(8),
                 stk: randNum(10),
-                bankname: banks[Math.floor(Math.random() * banks.length)]
+                bankname: defaultPass.bank || banks[Math.floor(Math.random() * banks.length)]
             };
 
             renderUI();
-            showToast('🎲 Đã tạo dữ liệu ngẫu nhiên mới!');
+            if (!silent) showToast('🎲 Đã tạo dữ liệu ngẫu nhiên mới!');
+        }
+
+        function saveAndNext() {
+            const isEmpty = Object.values(currentData).every(v => v.trim() === "");
+            if (isEmpty) {
+                showToast('❌ Dữ liệu đang trống, hãy tạo trước!');
+                return;
+            }
+            dataList.push(JSON.parse(JSON.stringify(currentData)));
+            localStorage.setItem('bot_savedDataList', JSON.stringify(dataList));
+            generateRandomData(true);
+            renderSavedUI();
+            showToast('✅ Đã cất data sang 1 bên và Random data mới!');
+        }
+
+        function renderSavedUI() {
+            const container = document.getElementById('savedContainer');
+            const listEl = document.getElementById('savedList');
+            if (dataList.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+            listEl.innerHTML = '';
+
+            // Render from newest to oldest
+            dataList.slice().reverse().forEach((data, revIndex) => {
+                const index = dataList.length - 1 - revIndex;
+                const b64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+                listEl.innerHTML += `
+                <div class="info-card" style="margin-bottom: 0;">
+                    <div style="display:flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 10px;">
+                        <h4 style="color:#00ffaa; margin:0;">#${index + 1} - ${data.name || 'Trống'}</h4>
+                        <div style="display:flex; gap: 8px;">
+                            <button style="background:var(--accent-glow); color:#000; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size: 0.8rem;" onclick="copySavedB64('${b64}')">Copy B64</button>
+                            <button style="background:#ef4444; color:#fff; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size: 0.8rem;" onclick="deleteSaved(${index})">Xóa</button>
+                        </div>
+                    </div>
+                    <ul class="info-list" style="font-size: 0.9rem;">
+                        <li><span class="label" style="min-width: 80px;">User:</span><span class="value">${data.username}</span></li>
+                        <li><span class="label" style="min-width: 80px;">Pass:</span><span class="value">${data.pw} | Rút: ${data.wd}</span></li>
+                        <li><span class="label" style="min-width: 80px;">Phone:</span><span class="value">${data.phone}</span></li>
+                        <li><span class="label" style="min-width: 80px;">Bank:</span><span class="value">${data.bankname} - STK: ${data.stk}</span></li>
+                    </ul>
+                </div>
+                `;
+            });
+        }
+
+        function deleteSaved(index) {
+            dataList.splice(index, 1);
+            localStorage.setItem('bot_savedDataList', JSON.stringify(dataList));
+            renderSavedUI();
+            showToast('🗑️ Đã xóa data trong list!');
+        }
+
+        function copySavedB64(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Đã copy Base64 của mục này!');
+            });
         }
 
         // Modal Logic
@@ -677,6 +845,7 @@
         function saveDefaultPass() {
             defaultPass.pw = document.getElementById('def_pw').value.trim();
             defaultPass.wd = document.getElementById('def_wd').value.trim();
+            defaultPass.bank = document.getElementById('def_bank').value.trim();
             closeModal('passModal');
             showToast('🔐 Cập nhật Pass mặc định thành công!');
         }
