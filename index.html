@@ -603,6 +603,11 @@
                 <label>7. Tên ngân hàng (bankname)</label>
                 <input type="text" class="form-control" id="m_bankname">
             </div>
+            <div class="form-group">
+                <label>8. API OTP <span style="color:#94a3b8; font-size:0.8rem;">(tuỳ chọn — nếu có tool sẽ dùng để nhận
+                        OTP)</span></label>
+                <input type="text" class="form-control" id="m_api_otp" placeholder="Để trống nếu không dùng">
+            </div>
             <button class="save-btn" onclick="saveInfo()">Lưu Cập Nhật</button>
         </div>
     </div>
@@ -641,11 +646,12 @@
             name: "",
             phone: "",
             stk: "",
-            bankname: ""
+            bankname: "",
+            api_otp: ""
         };
 
         let defaultPass = {
-            pw: "lamtooltheoyeucau",
+            pw: "vinh1234",
             wd: "123123",
             bank: ""
         };
@@ -657,7 +663,8 @@
             { key: 'name', label: '4. Họ và tên' },
             { key: 'phone', label: '5. Số điện thoại' },
             { key: 'stk', label: '6. Số tài khoản' },
-            { key: 'bankname', label: '7. Tên ngân hàng' }
+            { key: 'bankname', label: '7. Tên ngân hàng' },
+            { key: 'api_otp', label: '8. API OTP' }
         ];
 
         // Khởi động
@@ -823,14 +830,7 @@
             document.getElementById(id).classList.remove('active');
         }
 
-        // Đóng modal khi bấm ra ngoài
-        document.querySelectorAll('.modal-overlay').forEach(el => {
-            el.addEventListener('click', function (e) {
-                if (e.target === this) {
-                    this.classList.remove('active');
-                }
-            });
-        });
+        // Modal chỉ đóng khi bấm nút X — KHÔNG đóng khi click ra ngoài
 
         // Save thủ công
         function saveInfo() {
