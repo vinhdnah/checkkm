@@ -630,6 +630,10 @@
                 <input type="text" class="form-control" id="def_bank"
                     placeholder="VD: MBBANK, VCB... (Để trống nếu muốn random)">
             </div>
+            <div class="form-group">
+                <label>API OTP mặc định</label>
+                <input type="text" class="form-control" id="def_api_otp" placeholder="Để trống nếu không dùng">
+            </div>
             <button class="save-btn" onclick="saveDefaultPass()">Lưu Thiết Lập</button>
         </div>
     </div>
@@ -653,7 +657,8 @@
         let defaultPass = {
             pw: "vinh1234",
             wd: "123123",
-            bank: ""
+            bank: "",
+            api_otp: ""
         };
 
         const labels = [
@@ -676,6 +681,7 @@
             document.getElementById('def_pw').value = defaultPass.pw;
             document.getElementById('def_wd').value = defaultPass.wd;
             document.getElementById('def_bank').value = defaultPass.bank;
+            document.getElementById('def_api_otp').value = defaultPass.api_otp;
         }
 
         // Cập nhật giao diện
@@ -749,7 +755,8 @@
                 name: rndName,
                 phone: '09' + randNum(8),
                 stk: randNum(10),
-                bankname: defaultPass.bank || banks[Math.floor(Math.random() * banks.length)]
+                bankname: defaultPass.bank || banks[Math.floor(Math.random() * banks.length)],
+                api_otp: defaultPass.api_otp || ""
             };
 
             renderUI();
@@ -846,6 +853,7 @@
             defaultPass.pw = document.getElementById('def_pw').value.trim();
             defaultPass.wd = document.getElementById('def_wd').value.trim();
             defaultPass.bank = document.getElementById('def_bank').value.trim();
+            defaultPass.api_otp = document.getElementById('def_api_otp').value.trim();
             closeModal('passModal');
             showToast('🔐 Cập nhật Pass mặc định thành công!');
         }
