@@ -654,7 +654,7 @@
             api_otp: ""
         };
 
-        let defaultPass = {
+        let defaultPass = JSON.parse(localStorage.getItem('bot_defaultPass')) || {
             pw: "vinh1234",
             wd: "123123",
             bank: "",
@@ -854,6 +854,7 @@
             defaultPass.wd = document.getElementById('def_wd').value.trim();
             defaultPass.bank = document.getElementById('def_bank').value.trim();
             defaultPass.api_otp = document.getElementById('def_api_otp').value.trim();
+            localStorage.setItem('bot_defaultPass', JSON.stringify(defaultPass));
             closeModal('passModal');
             showToast('🔐 Cập nhật Pass mặc định thành công!');
         }
