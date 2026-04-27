@@ -423,6 +423,105 @@
         .toast.show {
             transform: translateX(-50%) translateY(0);
         }
+
+        /* Game Checklist */
+        .game-checklist-wrap {
+            margin-top: 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .game-checklist-wrap summary {
+            cursor: pointer;
+            color: var(--accent-glow);
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding: 8px 12px;
+            user-select: none;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .game-checklist-wrap summary::-webkit-details-marker { display: none; }
+
+        .game-checklist-wrap[open] summary {
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .game-checklist-wrap summary::before {
+            content: '▶';
+            font-size: 0.65rem;
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+
+        .game-checklist-wrap[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .game-rows {
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .game-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+
+        .game-chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            justify-content: center;
+            transition: all 0.2s;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .game-chip:hover {
+            background: rgba(0,255,170,0.08);
+            border-color: rgba(0,255,170,0.3);
+        }
+
+        .game-chip.checked {
+            background: rgba(0,255,170,0.15);
+            border-color: var(--accent-glow);
+            color: var(--accent-glow);
+        }
+
+        .game-chip .chip-tick {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 1.5px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+
+        .game-chip.checked .chip-tick {
+            background: var(--accent-glow);
+            border-color: var(--accent-glow);
+            color: #000;
+        }
     </style>
 </head>
 
@@ -790,6 +889,24 @@
             dataList.slice().reverse().forEach((data, revIndex) => {
                 const index = dataList.length - 1 - revIndex;
                 const b64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+                const gameRows = [
+                    ['CM88','FLY88','SC88','C168','F168'],
+                    ['ABC8','J88','U888','88CLB','789BET'],
+                    ['F8BET','SHBET','MB66','HI88','NEW88']
+                ];
+                const savedChecks = JSON.parse(localStorage.getItem('bot_gameChecks_' + index) || '{}');
+
+                const gameRowsHtml = gameRows.map((row, ri) => {
+                    const chips = row.map(game => {
+                        const isChecked = !!savedChecks[game];
+                        return `<div class="game-chip${isChecked ? ' checked' : ''}" onclick="toggleGameCheck(${index}, '${game}', this)">
+                            <div class="chip-tick">${isChecked ? '✓' : ''}</div>
+                            <span>${game}</span>
+                        </div>`;
+                    }).join('');
+                    return `<div class="game-row">${chips}</div>`;
+                }).join('');
+
                 listEl.innerHTML += `
                 <div class="info-card" style="margin-bottom: 0;">
                     <div style="display:flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 10px;">
@@ -805,16 +922,40 @@
                         <li><span class="label" style="min-width: 80px;">Phone:</span><span class="value">${data.phone}</span></li>
                         <li><span class="label" style="min-width: 80px;">Bank:</span><span class="value">${data.bankname} - STK: ${data.stk}</span></li>
                     </ul>
+                    <details class="game-checklist-wrap">
+                        <summary>🎮 Checklist Game Đã Chạy</summary>
+                        <div class="game-rows">${gameRowsHtml}</div>
+                    </details>
                 </div>
                 `;
             });
         }
 
         function deleteSaved(index) {
+            localStorage.removeItem('bot_gameChecks_' + index);
+            // Re-index remaining checks
+            for (let i = index + 1; i <= dataList.length; i++) {
+                const d = localStorage.getItem('bot_gameChecks_' + i);
+                if (d) {
+                    localStorage.setItem('bot_gameChecks_' + (i - 1), d);
+                    localStorage.removeItem('bot_gameChecks_' + i);
+                }
+            }
             dataList.splice(index, 1);
             localStorage.setItem('bot_savedDataList', JSON.stringify(dataList));
             renderSavedUI();
             showToast('🗑️ Đã xóa data trong list!');
+        }
+
+        function toggleGameCheck(dataIndex, game, chipEl) {
+            const key = 'bot_gameChecks_' + dataIndex;
+            const checks = JSON.parse(localStorage.getItem(key) || '{}');
+            const isNowChecked = !checks[game];
+            checks[game] = isNowChecked;
+            localStorage.setItem(key, JSON.stringify(checks));
+            chipEl.classList.toggle('checked', isNowChecked);
+            const tick = chipEl.querySelector('.chip-tick');
+            tick.textContent = isNowChecked ? '✓' : '';
         }
 
         function copySavedB64(text) {
