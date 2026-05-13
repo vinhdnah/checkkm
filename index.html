@@ -815,7 +815,12 @@
                 const parts = input.split('|');
                 if (parts.length >= 3) {
                     currentData.stk = parts[0].trim();
-                    currentData.name = parts[1].trim();
+                    
+                    // Loại bỏ dấu tiếng Việt và chuyển thành in hoa
+                    let rawName = parts[1].trim();
+                    rawName = rawName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
+                    currentData.name = rawName.toUpperCase();
+                    
                     currentData.bankname = parts[2].trim();
                     renderUI();
                     showToast("✅ Đã nhập nhanh databank thành công!");
