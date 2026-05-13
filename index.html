@@ -445,7 +445,9 @@
             gap: 6px;
         }
 
-        .game-checklist-wrap summary::-webkit-details-marker { display: none; }
+        .game-checklist-wrap summary::-webkit-details-marker {
+            display: none;
+        }
 
         .game-checklist-wrap[open] summary {
             border-bottom: 1px solid var(--glass-border);
@@ -479,7 +481,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            background: rgba(255,255,255,0.04);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--glass-border);
             border-radius: 6px;
             padding: 4px 10px;
@@ -494,12 +496,12 @@
         }
 
         .game-chip:hover {
-            background: rgba(0,255,170,0.08);
-            border-color: rgba(0,255,170,0.3);
+            background: rgba(0, 255, 170, 0.08);
+            border-color: rgba(0, 255, 170, 0.3);
         }
 
         .game-chip.checked {
-            background: rgba(0,255,170,0.15);
+            background: rgba(0, 255, 170, 0.15);
             border-color: var(--accent-glow);
             color: var(--accent-glow);
         }
@@ -546,6 +548,10 @@
                 <button class="btn" onclick="openModal('infoModal')">
                     <div class="btn-icon">📝</div>
                     <div>Set Thông Tin</div>
+                </button>
+                <button class="btn" onclick="quickImport()">
+                    <div class="btn-icon">⚡</div>
+                    <div>Nhập Nhanh Databank</div>
                 </button>
                 <button class="btn" onclick="generateRandomData()">
                     <div class="btn-icon">🎲</div>
@@ -802,6 +808,23 @@
             document.getElementById('base64Output').innerText = "Chưa tạo mã Base64...";
         }
 
+        // Nhập nhanh Databank
+        function quickImport() {
+            const input = prompt("Dán databank vào đây (Định dạng: STK|TÊN|NGÂN HÀNG):");
+            if (input) {
+                const parts = input.split('|');
+                if (parts.length >= 3) {
+                    currentData.stk = parts[0].trim();
+                    currentData.name = parts[1].trim();
+                    currentData.bankname = parts[2].trim();
+                    renderUI();
+                    showToast("✅ Đã nhập nhanh databank thành công!");
+                } else {
+                    alert("❌ Sai định dạng! Vui lòng dán theo mẫu: STK|TÊN|NGÂN HÀNG");
+                }
+            }
+        }
+
         // Tạo Base64
         function generateBase64() {
             // Check nếu chưa có data gì thì báo
@@ -890,9 +913,9 @@
                 const index = dataList.length - 1 - revIndex;
                 const b64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(data))));
                 const gameRows = [
-                    ['CM88','FLY88','SC88','C168','F168'],
-                    ['ABC8','J88','U888','88CLB','789BET'],
-                    ['F8BET','SHBET','MB66','HI88','NEW88']
+                    ['CM88', 'FLY88', 'SC88', 'C168', 'F168'],
+                    ['ABC8', 'J88', 'U888', '88CLB', '789BET'],
+                    ['F8BET', 'SHBET', 'MB66', 'HI88', 'NEW88']
                 ];
                 const savedChecks = JSON.parse(localStorage.getItem('bot_gameChecks_' + index) || '{}');
 
